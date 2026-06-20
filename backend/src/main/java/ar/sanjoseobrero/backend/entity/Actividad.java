@@ -54,14 +54,14 @@ public class Actividad {
     private Set<Sede> sedes = new HashSet<>();
 
     // Dueña de la relación con Profesor
-    //@ManyToMany(fetch = FetchType.LAZY)
-    //@JoinTable(
-    //    name = "profesor_actividad",
-    //    joinColumns = @JoinColumn(name = "id_actividad"),
-    //    inverseJoinColumns = @JoinColumn(name = "id_profesor")
-    //)
-    //@Builder.Default
-    //private Set<Profesor> profesores = new HashSet<>();
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "profesor_actividad",
+        joinColumns = @JoinColumn(name = "id_actividad"),
+        inverseJoinColumns = @JoinColumn(name = "id_profesor")
+    )
+    @Builder.Default
+    private Set<Profesor> profesores = new HashSet<>();
 
     // Inscripciones de alumnos a esta actividad
     //@OneToMany(mappedBy = "actividad", fetch = FetchType.LAZY)
