@@ -2,8 +2,9 @@
 
 package ar.sanjoseobrero.backend.entity;
 
+import ar.sanjoseobrero.backend.entity.enums.Parentesco;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 
@@ -24,9 +25,10 @@ public class Tutor extends Persona {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El parentesco es obligatorio")
+    @NotNull(message = "El parentesco es obligatorio")
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private String parentesco;
+    private Parentesco parentesco;
 
     // Un tutor puede ser responsable de varios alumnos
     @OneToMany(mappedBy = "tutor", fetch = FetchType.LAZY)
