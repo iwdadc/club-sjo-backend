@@ -16,7 +16,7 @@ public class DatosSalud {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Obra social
+    //Obra social
     @Column(name = "tiene_obra_social")
     private Boolean tieneObraSocial;
 
@@ -26,7 +26,7 @@ public class DatosSalud {
     @Column(name = "nro_afiliado", length = 50)
     private String nroAfiliado;
 
-    // ── Condiciones de salud ──
+    //Condiciones de salud 
     private Boolean asma;
     private Boolean diabetes;
     private Boolean hipertension;
@@ -58,7 +58,7 @@ public class DatosSalud {
     @Column(name = "detalle_alimentaria", columnDefinition = "TEXT")
     private String detalleAlimentaria;
 
-    // Durante el ejercicio
+    //Durante el ejercicio
     private Boolean desmayos;
     private Boolean mareos;
     private Boolean palpitaciones;
@@ -72,7 +72,7 @@ public class DatosSalud {
     @Column(name = "dificultad_respirar")
     private Boolean dificultadRespirar;
 
-    // ── Otros ──
+    //Otros
     @Column(name = "disminucion_auditiva")
     private Boolean disminucionAuditiva;
     @Column(name = "detalle_auditivo", columnDefinition = "TEXT")

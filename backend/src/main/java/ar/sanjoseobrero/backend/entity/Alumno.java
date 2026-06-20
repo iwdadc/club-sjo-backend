@@ -1,3 +1,5 @@
+// DatosPastorales.java - Datos religiosos/pastorales del alumno
+
 package ar.sanjoseobrero.backend.entity;
 
 import ar.sanjoseobrero.backend.entity.enums.Escolaridad;
@@ -88,8 +90,8 @@ public class Alumno  extends Persona{
     @OneToOne(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private DatosSalud datosSalud;
 
-    //@OneToOne(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    //private DatosPastorales datosPastorales;
+    @OneToOne(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private DatosPastorales datosPastorales;
 
     //@OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     //@Builder.Default
