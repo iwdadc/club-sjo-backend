@@ -85,8 +85,8 @@ public class Alumno  extends Persona{
     @JoinColumn(name = "id_tutor", nullable = false)
     private Tutor tutor;
 
-    //@OneToOne(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    //private DatosSalud datosSalud;
+    @OneToOne(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private DatosSalud datosSalud;
 
     //@OneToOne(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     //private DatosPastorales datosPastorales;
