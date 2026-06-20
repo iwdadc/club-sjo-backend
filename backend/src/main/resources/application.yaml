@@ -1,3 +1,25 @@
 spring:
   application:
-    name: backend
+    name: club-sjo-backend
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/club_sjo?useSSL=false&serverTimezone=America/Argentina/Buenos_Aires&allowPublicKeyRetrieval=true
+    username: root
+    password: 26.Lollypopcandy
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+jwt:
+  secret: club-sjo-jwt-secret-key-2026-muy-larga-para-seguridad
+  expiration: 86400000
