@@ -64,8 +64,8 @@ public class Actividad {
     private Set<Profesor> profesores = new HashSet<>();
 
     // Inscripciones de alumnos a esta actividad
-    //@OneToMany(mappedBy = "actividad", fetch = FetchType.LAZY)
-    //@Builder.Default
-   // private List<Inscripcion> inscripciones = new ArrayList<>();
+    @OneToMany(mappedBy = "actividad", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Inscripcion> inscripciones = new ArrayList<>();
     
 }

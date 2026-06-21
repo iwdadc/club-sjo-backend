@@ -29,7 +29,7 @@ public class Sede {
     private String direccion;
 
     // mappedBy indica que la relación se define del lado de Actividad
-   // @ManyToMany(mappedBy = "sedes", fetch = FetchType.LAZY)
-    //@Builder.Default
-    //private Set<Actividad> actividades = new HashSet<>();
+    @ManyToMany(mappedBy = "sedes", fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<Actividad> actividades = new HashSet<>();
 }
