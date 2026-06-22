@@ -7,6 +7,7 @@ import ar.sanjoseobrero.backend.entity.enums.EstadoInscripcion;
 import ar.sanjoseobrero.backend.entity.enums.Turno;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,8 +19,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-
+@SuperBuilder
 public class Alumno  extends Persona{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
