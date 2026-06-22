@@ -26,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class InscripcionServiceImpl implements InscripcionService {
@@ -129,28 +132,28 @@ public class InscripcionServiceImpl implements InscripcionService {
                 .orElseThrow(() -> new EntityNotFoundException("Actividad no encontrada: " + id)))
             .toList();
 
-        Sede primeraSede = sedeRepository.findById(request.getIdsSedes().get(0))
-            .orElseThrow(() -> new EntityNotFoundException("Sede no encontrada"));
+        // Todas las sedes sugeridas por el alumno - el admin asigna la definitiva después
+        Set<Sede> sedesSugeridas = buscarSedes(request.getIdsSedes());
 
         // 6. Crear una Inscripcion por cada actividad elegida
-        // (el alumno puede inscribirse a varias actividades a la vez)
         Inscripcion ultimaInscripcion = null;
         for (Actividad actividad : actividades) {
-            Inscripcion inscripcion = Inscripcion.builder()
-                .alumno(alumno)
-                .actividad(actividad)
-                .sede(primeraSede)
-                .estado(EstadoInscripcion.PENDIENTE)
-                .anioParticipacion(request.getAnioParticipacion())
-                .whatsappContacto(request.getWhatsappContacto())
-                .retiroMenor(request.getRetiroMenor())
-                .quienBusca(request.getQuienBusca())
-                .autorizaActividad(request.isAutorizaActividad())
-                .firmaActividad(request.getFirmaActividad())
-                .autorizaImagen(request.isAutorizaImagen())
-                .firmaImagen(request.getFirmaImagen())
-                .build();
-            ultimaInscripcion = inscripcionRepository.save(inscripcion);
+    Inscripcion inscripcion = Inscripcion.builder()
+        .alumno(alumno)
+        .actividad(actividad)
+        .sede(null) // se asigna después, cuando el admin confirma
+        .sedesSugeridas(sedesSugeridas)
+        .estado(EstadoInscripcion.PENDIENTE)
+        .anioParticipacion(request.getAnioParticipacion())
+        .whatsappContacto(request.getWhatsappContacto())
+        .retiroMenor(request.getRetiroMenor())
+        .quienBusca(request.getQuienBusca())
+        .autorizaActividad(request.isAutorizaActividad())
+        .firmaActividad(request.getFirmaActividad())
+        .autorizaImagen(request.isAutorizaImagen())
+        .firmaImagen(request.getFirmaImagen())
+        .build();
+    ultimaInscripcion = inscripcionRepository.save(inscripcion);
         }
 
         return mapearADTO(ultimaInscripcion);
@@ -165,7 +168,7 @@ public class InscripcionServiceImpl implements InscripcionService {
     }
 
     @Override
-public InscripcionDTO cambiarEstado(Long id, EstadoInscripcion nuevoEstado) {
+    public InscripcionDTO cambiarEstado(Long id, EstadoInscripcion nuevoEstado) {
     Inscripcion inscripcion = inscripcionRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Inscripción no encontrada: " + id));
 
@@ -192,6 +195,19 @@ public InscripcionDTO cambiarEstado(Long id, EstadoInscripcion nuevoEstado) {
     }
 
     @Override
+    public InscripcionDTO asignarSede(Long idInscripcion, Long idSede) {
+        Inscripcion inscripcion = inscripcionRepository.findById(idInscripcion)
+            .orElseThrow(() -> new EntityNotFoundException("Inscripción no encontrada: " + idInscripcion));
+
+        Sede sede = sedeRepository.findById(idSede)
+            .orElseThrow(() -> new EntityNotFoundException("Sede no encontrada: " + idSede));
+
+        inscripcion.setSede(sede);
+        Inscripcion actualizada = inscripcionRepository.save(inscripcion);
+        return mapearADTO(actualizada);
+    }
+
+    @Override
     public List<InscripcionDTO> listarPorActividad(Long idActividad) {
         return inscripcionRepository.findByActividadId(idActividad)
             .stream()
@@ -199,6 +215,19 @@ public InscripcionDTO cambiarEstado(Long id, EstadoInscripcion nuevoEstado) {
             .toList();
     }
 
+    private Set<Sede> buscarSedes(List<Long> idsSedes) {
+        if (idsSedes == null || idsSedes.isEmpty()) return new HashSet<>();
+        List<Sede> encontradas = sedeRepository.findAllById(idsSedes);
+        if (encontradas.size() != idsSedes.size()) {
+            List<Long> idsEncontrados = encontradas.stream().map(Sede::getId).toList();
+            List<Long> idsFaltantes = idsSedes.stream()
+            .filter(id -> !idsEncontrados.contains(id))
+            .toList();
+        throw new EntityNotFoundException("No se encontraron las sedes con id: " + idsFaltantes);
+        }
+
+    return new HashSet<>(encontradas);
+}
     // Entity -> DTO 
     private InscripcionDTO mapearADTO(Inscripcion inscripcion) {
         Alumno alumno = inscripcion.getAlumno();
@@ -211,7 +240,7 @@ public InscripcionDTO cambiarEstado(Long id, EstadoInscripcion nuevoEstado) {
             .actividades(List.of(inscripcion.getActividad().getNombre()))
             .sedes(inscripcion.getSede() != null
                 ? List.of(inscripcion.getSede().getNombre())
-                : List.of())
+                : inscripcion.getSedesSugeridas().stream().map(Sede::getNombre).toList())
             .nombreTutor(tutor.getNombre() + " " + tutor.getApellido())
             .telefonoTutor(tutor.getTelefono())
             .fechaInscripcion(inscripcion.getFechaInscripcion())

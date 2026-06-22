@@ -15,5 +15,7 @@ public interface InscripcionService {
 
     InscripcionDTO cambiarEstado(Long id, EstadoInscripcion nuevoEstado);
 
+    InscripcionDTO asignarSede(Long idInscripcion, Long idSede);
+    
     List<InscripcionDTO> listarPorActividad(Long idActividad);
 }
