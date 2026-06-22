@@ -93,7 +93,7 @@ public class Alumno  extends Persona{
     @OneToOne(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private DatosPastorales datosPastorales;
 
-    //@OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    //@Builder.Default
-    //private List<Inscripcion> inscripciones = new ArrayList<>();
+    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Inscripcion> inscripciones = new ArrayList<>();
 }
