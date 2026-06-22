@@ -8,6 +8,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table (name = "inscripciones")
 @Getter
@@ -73,9 +76,18 @@ public class Inscripcion {
     @JoinColumn(name = "id_actividad", nullable = false)
     private Actividad actividad;
 
-    // Sede específica donde se realizará ESTA inscripción
-    // El admin la asigna después según disponibilidad
+    // Sede definitiva - la asigna el admin al confirmar, arranca en null
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sede")
     private Sede sede;
+
+    // Sedes que el alumno sugirió en el formulario - no son definitivas
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "inscripcion_sedes_sugeridas",
+        joinColumns = @JoinColumn(name = "id_inscripcion"),
+        inverseJoinColumns = @JoinColumn(name = "id_sede")
+    )
+    @Builder.Default
+    private Set<Sede> sedesSugeridas = new HashSet<>();
 }

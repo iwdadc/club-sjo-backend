@@ -10,13 +10,14 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.Period;
+import lombok.experimental.SuperBuilder;
 
 @MappedSuperclass
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-
+@SuperBuilder
 public abstract class Persona {
     @NotBlank (message = "El nombre es obligatorio")
     @Column (nullable = false)

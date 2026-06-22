@@ -16,4 +16,6 @@ public interface InscripcionRepository extends JpaRepository <Inscripcion, Long>
 
     // Todas las inscripciones de un alumno específico
     List<Inscripcion> findByAlumnoId(Long idAlumno);
+
+    long countByActividad_IdAndEstado(Long actividadId, EstadoInscripcion estado);
 }

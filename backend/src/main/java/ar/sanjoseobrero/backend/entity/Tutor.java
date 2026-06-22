@@ -6,7 +6,7 @@ import ar.sanjoseobrero.backend.entity.enums.Parentesco;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
+import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +18,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-
+@SuperBuilder
 public class Tutor extends Persona {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

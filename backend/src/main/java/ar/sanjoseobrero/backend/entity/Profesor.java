@@ -4,6 +4,8 @@ package ar.sanjoseobrero.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,9 +16,9 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 
-public class Profesor {
+public class Profesor extends Persona {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
