@@ -31,9 +31,8 @@ public abstract class Persona {
     @Column(nullable = false, unique = true, length = 20)
     private String dni;
 
-    @NotNull(message = "La fecha de nacimiento es obligatoria")
     @Past(message = "La fecha de nacimiento debe ser en el pasado")
-    @Column(name = "fecha_nacimiento", nullable = false)
+    @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
     // La edad NO se almacena — se calcula dinámicamente
@@ -48,9 +47,8 @@ public abstract class Persona {
     @Column(length = 20)
     private Genero genero;
 
-    @NotBlank(message = "El domicilio es obligatorio")
     @Size(min = 5, max = 200, message = "El domicilio debe tener entre 5 y 200 caracteres")
-    @Column(nullable = false)
+    @Column
     private String domicilio;
 
     @Pattern(

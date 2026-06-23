@@ -160,6 +160,7 @@ public class InscripcionServiceImpl implements InscripcionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<InscripcionDTO> listarTodas() {
         return inscripcionRepository.findAll()
             .stream()
@@ -168,6 +169,7 @@ public class InscripcionServiceImpl implements InscripcionService {
     }
 
     @Override
+    @Transactional
     public InscripcionDTO cambiarEstado(Long id, EstadoInscripcion nuevoEstado) {
     Inscripcion inscripcion = inscripcionRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Inscripción no encontrada: " + id));
@@ -195,6 +197,7 @@ public class InscripcionServiceImpl implements InscripcionService {
     }
 
     @Override
+    @Transactional
     public InscripcionDTO asignarSede(Long idInscripcion, Long idSede) {
         Inscripcion inscripcion = inscripcionRepository.findById(idInscripcion)
             .orElseThrow(() -> new EntityNotFoundException("Inscripción no encontrada: " + idInscripcion));
@@ -208,6 +211,7 @@ public class InscripcionServiceImpl implements InscripcionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<InscripcionDTO> listarPorActividad(Long idActividad) {
         return inscripcionRepository.findByActividadId(idActividad)
             .stream()
