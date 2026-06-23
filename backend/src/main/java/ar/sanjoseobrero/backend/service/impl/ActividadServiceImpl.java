@@ -17,6 +17,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Set;
 
@@ -29,6 +31,7 @@ public class ActividadServiceImpl implements ActividadService{
     private final InscripcionRepository inscripcionRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<ActividadDTO> listarTodas() {
         return actividadRepository.findAll()
             .stream()
@@ -37,6 +40,7 @@ public class ActividadServiceImpl implements ActividadService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ActividadDTO> listarActivas() {
         return actividadRepository.findByActivaTrue()
             .stream()
@@ -45,6 +49,7 @@ public class ActividadServiceImpl implements ActividadService{
     }
 
     @Override
+    @Transactional(readOnly = true)   
     public ActividadDTO obtenerPorId(Long id) {
         Actividad actividad = buscarOLanzarExcepcion(id);
         return mapearADTO(actividad);

@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping ("/api/profesores")
 @RequiredArgsConstructor
 @Tag (name = "Profesores", description = "Gestión de profesores - CRUD completo, solo ADMIN")
 public class ProfesorController {

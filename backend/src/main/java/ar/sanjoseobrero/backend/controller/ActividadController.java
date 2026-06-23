@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping ("/api/actividades")
 @RequiredArgsConstructor
 @Tag (name = "Actividades", description = "Gestión de actividades/clases del club")
 public class ActividadController {

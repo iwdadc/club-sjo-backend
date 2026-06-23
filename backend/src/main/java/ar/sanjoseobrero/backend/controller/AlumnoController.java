@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping
+@RequestMapping ("/api/alumnos")
 @RequiredArgsConstructor
 @Tag (name = "Alumnos", description = "Gestión de alumnos - CRUD principal del negocio")
 public class AlumnoController {
