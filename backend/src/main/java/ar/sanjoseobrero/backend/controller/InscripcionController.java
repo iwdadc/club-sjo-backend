@@ -2,6 +2,7 @@ package ar.sanjoseobrero.backend.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import ar.sanjoseobrero.backend.dto.InscripcionDTO;
@@ -31,18 +32,21 @@ public class InscripcionController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar inscripciones", description = "Requiere autenticación")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Listar inscripciones", description = "Solo ADMIN")
     public ResponseEntity<List<InscripcionDTO>> listarTodas() {
         return ResponseEntity.ok(inscripcionService.listarTodas());
     }
 
     @GetMapping("/actividad/{idActividad}")
-    @Operation(summary = "Listar inscripciones por actividad")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Listar inscripciones por actividad", description = "Solo ADMIN")
     public ResponseEntity<List<InscripcionDTO>> listarPorActividad(@PathVariable Long idActividad) {
         return ResponseEntity.ok(inscripcionService.listarPorActividad(idActividad));
     }
 
     @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Cambiar estado de inscripción", description = "Solo ADMIN")
     public ResponseEntity<InscripcionDTO> cambiarEstado(
         @PathVariable Long id,
@@ -53,6 +57,7 @@ public class InscripcionController {
     }
 
     @PatchMapping("/{id}/sede")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Asignar sede definitiva", description = "Solo ADMIN — asigna la sede entre las sugeridas")
     public ResponseEntity<InscripcionDTO> asignarSede(
         @PathVariable Long id,

@@ -67,7 +67,6 @@ public class InscripcionServiceImpl implements InscripcionService {
             .turno(request.getAlumno().getTurno())
             .ocupacion(request.getAlumno().getOcupacion())
             .convivencia(request.getAlumno().getConvivencia())
-            .estado(EstadoInscripcion.PENDIENTE) // siempre arranca pendiente
             .tutor(tutor)
             .build();
         alumno = alumnoRepository.save(alumno);
@@ -185,12 +184,10 @@ public class InscripcionServiceImpl implements InscripcionService {
             throw new IllegalStateException(
                 "No hay cupos disponibles para " + actividad.getNombre()
             );
-        }
+        }       
     }
 
     inscripcion.setEstado(nuevoEstado);
-    inscripcion.getAlumno().setEstado(nuevoEstado);
-    alumnoRepository.save(inscripcion.getAlumno());
 
     Inscripcion actualizada = inscripcionRepository.save(inscripcion);
     return mapearADTO(actualizada);

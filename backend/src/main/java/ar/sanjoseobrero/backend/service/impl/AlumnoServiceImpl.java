@@ -3,12 +3,12 @@ package ar.sanjoseobrero.backend.service.impl;
 import ar.sanjoseobrero.backend.dto.AlumnoDTO;
 import ar.sanjoseobrero.backend.entity.Alumno;
 import ar.sanjoseobrero.backend.entity.Tutor;
-import ar.sanjoseobrero.backend.entity.enums.EstadoInscripcion;
 import ar.sanjoseobrero.backend.repository.AlumnoRepository;
 import ar.sanjoseobrero.backend.service.AlumnoService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +18,7 @@ public class AlumnoServiceImpl implements AlumnoService {
     private final AlumnoRepository alumnoRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<AlumnoDTO> listarTodos() {
         return alumnoRepository.findAll()
             .stream()
@@ -26,27 +27,13 @@ public class AlumnoServiceImpl implements AlumnoService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AlumnoDTO obtenerPorId(Long id) {
         Alumno alumno = buscarAlumnoOLanzarExcepcion(id);
         return mapearADTO(alumno);
     }
 
-    @Override
-    public List<AlumnoDTO> listarPorEstado(EstadoInscripcion estado) {
-        return alumnoRepository.findByEstado(estado)
-            .stream()
-            .map(this::mapearADTO)
-            .toList();
-    }
-
-    @Override
-    public AlumnoDTO actualizarEstado(Long id, EstadoInscripcion nuevoEstado) {
-        Alumno alumno = buscarAlumnoOLanzarExcepcion(id);
-        alumno.setEstado(nuevoEstado);
-        Alumno actualizado = alumnoRepository.save(alumno);
-        return mapearADTO(actualizado);
-    }
-
+    @Transactional
     @Override
     public AlumnoDTO actualizarDatos(Long id, AlumnoDTO datosActualizados) {
         Alumno alumno = buscarAlumnoOLanzarExcepcion(id);
@@ -90,7 +77,6 @@ public class AlumnoServiceImpl implements AlumnoService {
         .escuela(alumno.getEscuela())
         .gradoDivision(alumno.getGradoDivision())
         .ocupacion(alumno.getOcupacion())
-        .estado(alumno.getEstado())
         .fechaRegistro(alumno.getFechaRegistro())
         .nombreTutor(tutor != null ? tutor.getNombre() : null)
         .apellidoTutor(tutor != null ? tutor.getApellido() : null)

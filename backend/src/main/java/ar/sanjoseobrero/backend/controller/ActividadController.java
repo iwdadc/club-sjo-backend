@@ -2,6 +2,7 @@ package ar.sanjoseobrero.backend.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import ar.sanjoseobrero.backend.dto.ActividadDTO;
@@ -38,6 +39,7 @@ public class ActividadController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Crear actividad", description = "Solo ADMIN")
     public ResponseEntity<ActividadDTO> crear(@Valid @RequestBody ActividadRequestDTO request) {
         ActividadDTO creada = actividadService.crear(request);
@@ -45,13 +47,15 @@ public class ActividadController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Actualizar actividad", description = "Solo ADMIN")
     public ResponseEntity<ActividadDTO> actualizar(@PathVariable Long id, @Valid @RequestBody ActividadRequestDTO request) {
         return ResponseEntity.ok(actividadService.actualizar(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Desactivar actividad", description = "Solo ADMIN — soft delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Desactivar actividad", description = "Solo ADMIN - soft delete")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         actividadService.eliminar(id);
         return ResponseEntity.noContent().build();

@@ -15,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +31,7 @@ public class ProfesorServiceImpl  implements ProfesorService {
     private final PasswordEncoder passwordEncoder; // inyectado desde SecurityConfig
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProfesorDTO> listarTodos() {
         return profesorRepository.findAll()
             .stream()
@@ -36,6 +40,7 @@ public class ProfesorServiceImpl  implements ProfesorService {
     }
 
     @Override
+    @Transactional
     public ProfesorDTO crear(ProfesorRequestDTO request) {
         if (usuarioSistemaRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Ya existe un usuario con ese email");
@@ -49,7 +54,7 @@ public class ProfesorServiceImpl  implements ProfesorService {
             .activo(true)
             .build();
         usuario = usuarioSistemaRepository.save(usuario);   
-    
+        
         Set<Actividad> actividades = buscarActividades(request.getIdsActividades());
         // 2. Crear el profesor con sus datos personales y actividades
         Profesor profesor = Profesor.builder()
@@ -65,6 +70,7 @@ public class ProfesorServiceImpl  implements ProfesorService {
     }
 
     @Override
+    @Transactional
     public ProfesorDTO actualizar(Long id, ProfesorRequestDTO request) {
         Profesor profesor = profesorRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Profesor no encontrado: " + id));
@@ -90,6 +96,7 @@ public class ProfesorServiceImpl  implements ProfesorService {
     }
 
     @Override
+    @Transactional
     public void eliminar(Long id) {
         Profesor profesor = profesorRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException("Profesor no encontrado: " + id));

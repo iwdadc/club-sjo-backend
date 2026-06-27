@@ -3,7 +3,6 @@
 package ar.sanjoseobrero.backend.entity;
 
 import ar.sanjoseobrero.backend.entity.enums.Escolaridad;
-import ar.sanjoseobrero.backend.entity.enums.EstadoInscripcion;
 import ar.sanjoseobrero.backend.entity.enums.Turno;
 import jakarta.persistence.*;
 import lombok.*;
@@ -67,11 +66,6 @@ public class Alumno  extends Persona{
 
     @Column(name = "dni_madre", length = 20)
     private String dniMadre;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    @Builder.Default
-    private EstadoInscripcion estado = EstadoInscripcion.PENDIENTE;
 
     @Column(name = "fecha_registro", nullable = false, updatable = false)
     private LocalDateTime fechaRegistro;

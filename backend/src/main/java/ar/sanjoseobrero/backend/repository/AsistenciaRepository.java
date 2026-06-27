@@ -18,4 +18,7 @@ public interface AsistenciaRepository extends JpaRepository <Asistencia, Long>{
 
     // Asistencia que registró un profesor específico
     List<Asistencia> findByProfesorId(Long idProfesor);
+
+    boolean existsByAlumnoIdAndActividadIdAndFecha(Long idAlumno, Long idActividad, LocalDate fecha);
+
 }

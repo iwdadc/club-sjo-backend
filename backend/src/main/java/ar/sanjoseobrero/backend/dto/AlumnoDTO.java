@@ -3,7 +3,6 @@ package ar.sanjoseobrero.backend.dto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import ar.sanjoseobrero.backend.entity.enums.EstadoInscripcion;
 import ar.sanjoseobrero.backend.entity.enums.Genero;
 import lombok.*;
 
@@ -29,7 +28,6 @@ public class AlumnoDTO {
     private String gradoDivision;
     private String ocupacion;
 
-    private EstadoInscripcion estado;
     private LocalDateTime fechaRegistro;
 
     // Solo los datos básicos del tutor — no toda la entidad

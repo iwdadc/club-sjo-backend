@@ -28,8 +28,13 @@ public class Profesor extends Persona {
     @JoinColumn(name = "id_usuario_sistema", nullable = false, unique = true)
     private UsuarioSistema usuarioSistema;
 
-    // Actividades que dicta * mappedBy porque Actividad es la dueña de la relación
-    @ManyToMany(mappedBy = "profesores", fetch = FetchType.LAZY)
+    //Dueña de la relación con Actividad
+    @ManyToMany
+    @JoinTable(
+    name = "profesor_actividad",
+    joinColumns = @JoinColumn(name = "profesor_id"),
+    inverseJoinColumns = @JoinColumn(name = "actividad_id")
+    )
     @Builder.Default
     private Set<Actividad> actividades = new HashSet<>();
-}
+    }

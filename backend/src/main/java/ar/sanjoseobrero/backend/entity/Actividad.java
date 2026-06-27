@@ -53,13 +53,8 @@ public class Actividad {
     @Builder.Default
     private Set<Sede> sedes = new HashSet<>();
 
-    // Dueña de la relación con Profesor
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "profesor_actividad",
-        joinColumns = @JoinColumn(name = "id_actividad"),
-        inverseJoinColumns = @JoinColumn(name = "id_profesor")
-    )
+    // 
+    @ManyToMany(mappedBy = "actividades")
     @Builder.Default
     private Set<Profesor> profesores = new HashSet<>();
 

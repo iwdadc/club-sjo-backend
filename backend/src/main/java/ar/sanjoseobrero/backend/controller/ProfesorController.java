@@ -2,6 +2,7 @@ package ar.sanjoseobrero.backend.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import ar.sanjoseobrero.backend.dto.ProfesorDTO;
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping ("/api/profesores")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 @Tag (name = "Profesores", description = "Gestión de profesores - CRUD completo, solo ADMIN")
 public class ProfesorController {
     private final ProfesorService profesorService;

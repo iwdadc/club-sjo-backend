@@ -56,6 +56,7 @@ public class ActividadServiceImpl implements ActividadService{
     }
 
     @Override
+    @Transactional
     public ActividadDTO crear(ActividadRequestDTO request) {
         Actividad actividad = Actividad.builder()
             .nombre(request.getNombre())
@@ -72,6 +73,7 @@ public class ActividadServiceImpl implements ActividadService{
     }
 
     @Override
+    @Transactional
     public ActividadDTO actualizar(Long id, ActividadRequestDTO request) {
         Actividad actividad = buscarOLanzarExcepcion(id);
 
@@ -87,13 +89,14 @@ public class ActividadServiceImpl implements ActividadService{
     }
 
     @Override
+    @Transactional
     public void eliminar(Long id) {
         Actividad actividad = buscarOLanzarExcepcion(id);
         actividad.setActiva(false); // soft delete — no se borra, se desactiva
         actividadRepository.save(actividad);
     }
 
-    // ── Métodos privados de apoyo ──
+    // Métodos privados de apoyo
 
     private Actividad buscarOLanzarExcepcion(Long id) {
         return actividadRepository.findById(id)
