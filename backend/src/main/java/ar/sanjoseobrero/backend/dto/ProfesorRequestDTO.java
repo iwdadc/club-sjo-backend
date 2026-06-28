@@ -2,6 +2,7 @@
 
 package ar.sanjoseobrero.backend.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -31,6 +32,8 @@ public class ProfesorRequestDTO {
     // Obligatoria al crear, opcional al editar (se valida en el service)
     private String password;
 
-    @NotEmpty(message = "Debe asignar al menos una actividad")
-    private List<Long> idsActividades;
+    // Cada elemento indica también la sede, ya que un profesor puede dar la misma actividad en sedes distintas
+    @Valid
+    @NotEmpty(message = "Debe asignar al menos una actividad con su sede")
+    private List<AsignacionRequestDTO> asignaciones;
 }

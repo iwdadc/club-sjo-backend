@@ -46,8 +46,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/inscripciones").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/actividades/activas").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/sedes").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/asistencia").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/asistencia/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/asistencias").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/asistencias/**").authenticated()
                 .requestMatchers(
                     "/swagger-ui/**",
                     "/swagger-ui.html",
@@ -56,10 +56,10 @@ public class SecurityConfig {
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/health").permitAll()
 
-                // Rutas solo ADMIN 
+                // Rutas solo ADMIN
                 .requestMatchers("/api/profesores/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/inscripciones").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/inscripciones/actividad/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/inscripciones/actividad/**").hasAnyRole("ADMIN", "PROFESOR")
                 .requestMatchers(HttpMethod.PATCH, "/api/inscripciones/*/estado").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/api/inscripciones/*/sede").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/alumnos/**").hasRole("ADMIN")

@@ -18,6 +18,8 @@ public class AsistenciaDTO {
     private Long idActividad;
     private String nombreActividad;
     private String nombreProfesor;
+    private Long idSede;
+    private String nombreSede;
     private LocalDate fecha;
     private Boolean presente;
 }

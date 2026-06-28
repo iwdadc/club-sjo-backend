@@ -21,12 +21,14 @@ public class AsistenciaRequestDTO {
     @NotNull(message = "La actividad es obligatoria")
     private Long idActividad;
 
+    @NotNull(message = "La sede es obligatoria")
+    private Long idSede;
+
     @NotNull(message = "La fecha es obligatoria")
     @PastOrPresent(message = "La fecha no puede ser futura")
     private LocalDate fecha;
 
-    // El profesor NO viaja en el request — se obtiene del usuario logueado (JWT)
-
+    // El profesor NO viaja en el request - se obtiene del usuario logueado (JWT)
     @Valid
     @NotEmpty(message = "Debe registrar al menos un alumno")
     private List<DetalleAsistenciaDTO> alumnos;

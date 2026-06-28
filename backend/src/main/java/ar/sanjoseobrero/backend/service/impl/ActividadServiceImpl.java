@@ -5,12 +5,11 @@ import java.util.HashSet;
 import ar.sanjoseobrero.backend.dto.ActividadDTO;
 import ar.sanjoseobrero.backend.dto.ActividadRequestDTO;
 import ar.sanjoseobrero.backend.entity.Actividad;
-import ar.sanjoseobrero.backend.entity.Profesor;
+import ar.sanjoseobrero.backend.entity.Asignacion;
 import ar.sanjoseobrero.backend.entity.Sede;
 import ar.sanjoseobrero.backend.entity.enums.EstadoInscripcion;
 import ar.sanjoseobrero.backend.repository.ActividadRepository;
 import ar.sanjoseobrero.backend.repository.InscripcionRepository;
-import ar.sanjoseobrero.backend.repository.ProfesorRepository;
 import ar.sanjoseobrero.backend.repository.SedeRepository;
 import ar.sanjoseobrero.backend.service.ActividadService;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,14 +20,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ActividadServiceImpl implements ActividadService{
+public class ActividadServiceImpl implements ActividadService {
     private final ActividadRepository actividadRepository;
     private final SedeRepository sedeRepository;
-    private final ProfesorRepository profesorRepository;
     private final InscripcionRepository inscripcionRepository;
+    // CAMBIÓ: ya no necesita ProfesorRepository — idsProfesores se eliminó del request.
+    // Los profesores que dan cada actividad se derivan de Asignacion, no se asignan acá.
 
     @Override
     @Transactional(readOnly = true)
@@ -49,7 +50,7 @@ public class ActividadServiceImpl implements ActividadService{
     }
 
     @Override
-    @Transactional(readOnly = true)   
+    @Transactional(readOnly = true)
     public ActividadDTO obtenerPorId(Long id) {
         Actividad actividad = buscarOLanzarExcepcion(id);
         return mapearADTO(actividad);
@@ -65,7 +66,6 @@ public class ActividadServiceImpl implements ActividadService{
             .cupoMax(request.getCupoMax())
             .activa(true)
             .sedes(buscarSedes(request.getIdsSedes()))
-            .profesores(buscarProfesores(request.getIdsProfesores()))
             .build();
 
         Actividad guardada = actividadRepository.save(actividad);
@@ -82,7 +82,6 @@ public class ActividadServiceImpl implements ActividadService{
         actividad.setHorario(request.getHorario());
         actividad.setCupoMax(request.getCupoMax());
         actividad.setSedes(buscarSedes(request.getIdsSedes()));
-        actividad.setProfesores(buscarProfesores(request.getIdsProfesores()));
 
         Actividad actualizada = actividadRepository.save(actividad);
         return mapearADTO(actualizada);
@@ -104,41 +103,34 @@ public class ActividadServiceImpl implements ActividadService{
     }
 
     private Set<Sede> buscarSedes(List<Long> idsSedes) {
-    if (idsSedes == null || idsSedes.isEmpty()) return new HashSet<>();
+        if (idsSedes == null || idsSedes.isEmpty()) return new HashSet<>();
 
-    List<Sede> sedesEncontradas = sedeRepository.findAllById(idsSedes);
+        List<Sede> sedesEncontradas = sedeRepository.findAllById(idsSedes);
 
-    if (sedesEncontradas.size() != idsSedes.size()) {
-        List<Long> idsEncontrados = sedesEncontradas.stream().map(Sede::getId).toList();
-        List<Long> idsFaltantes = idsSedes.stream()
-            .filter(id -> !idsEncontrados.contains(id))
-            .toList();
-        throw new EntityNotFoundException("No se encontraron las sedes con id: " + idsFaltantes);
-    }
+        if (sedesEncontradas.size() != idsSedes.size()) {
+            List<Long> idsEncontrados = sedesEncontradas.stream().map(Sede::getId).toList();
+            List<Long> idsFaltantes = idsSedes.stream()
+                .filter(id -> !idsEncontrados.contains(id))
+                .toList();
+            throw new EntityNotFoundException("No se encontraron las sedes con id: " + idsFaltantes);
+        }
 
-    return new HashSet<>(sedesEncontradas);
-    }   
-
-    private Set<Profesor> buscarProfesores(List<Long> idsProfesores) {
-    if (idsProfesores == null || idsProfesores.isEmpty()) return new HashSet<>();
-
-    List<Profesor> profesoresEncontrados = profesorRepository.findAllById(idsProfesores);
-
-    if (profesoresEncontrados.size() != idsProfesores.size()) {
-        List<Long> idsEncontrados = profesoresEncontrados.stream().map(Profesor::getId).toList();
-        List<Long> idsFaltantes = idsProfesores.stream()
-            .filter(id -> !idsEncontrados.contains(id))
-            .toList();
-        throw new EntityNotFoundException("No se encontraron los profesores con id: " + idsFaltantes);
-    }
-
-    return new HashSet<>(profesoresEncontrados);
+        return new HashSet<>(sedesEncontradas);
     }
 
     private ActividadDTO mapearADTO(Actividad actividad) {
         int inscriptos = (int) inscripcionRepository
-        .countByActividad_IdAndEstado(actividad.getId(), EstadoInscripcion.CONFIRMADO);
-            
+            .countByActividad_IdAndEstado(actividad.getId(), EstadoInscripcion.CONFIRMADO);
+
+        // los nombres de profesores ahora se derivan de Asignacion,
+        // no de una relación directa Actividad-Profesor. Se deduplica con un Set
+        // por si el mismo profesor tiene esta actividad en más de una sede.
+        List<String> nombresProfesores = actividad.getAsignaciones().stream()
+            .map(Asignacion::getProfesor)
+            .map(p -> p.getNombre() + " " + p.getApellido())
+            .distinct()
+            .collect(Collectors.toList());
+
         return ActividadDTO.builder()
             .id(actividad.getId())
             .nombre(actividad.getNombre())
@@ -148,9 +140,7 @@ public class ActividadServiceImpl implements ActividadService{
             .inscriptos(inscriptos)
             .activa(actividad.getActiva())
             .sedes(actividad.getSedes().stream().map(Sede::getNombre).toList())
-            .profesores(actividad.getProfesores().stream()
-                .map(p -> p.getNombre() + " " + p.getApellido())
-                .toList())
+            .profesores(nombresProfesores)
             .build();
     }
 }

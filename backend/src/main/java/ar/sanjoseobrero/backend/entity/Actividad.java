@@ -53,10 +53,10 @@ public class Actividad {
     @Builder.Default
     private Set<Sede> sedes = new HashSet<>();
 
-    // 
-    @ManyToMany(mappedBy = "actividades")
+    // profesor+actividad también necesita saber en qué sede
+    @OneToMany(mappedBy = "actividad", fetch = FetchType.LAZY)
     @Builder.Default
-    private Set<Profesor> profesores = new HashSet<>();
+    private Set<Asignacion> asignaciones = new HashSet<>();
 
     // Inscripciones de alumnos a esta actividad
     @OneToMany(mappedBy = "actividad", fetch = FetchType.LAZY)

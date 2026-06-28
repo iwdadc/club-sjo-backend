@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import ar.sanjoseobrero.backend.dto.InscripcionDTO;
 import ar.sanjoseobrero.backend.dto.InscripcionRequestDTO;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 
 import java.util.List;
 import java.util.Map;
@@ -39,10 +41,14 @@ public class InscripcionController {
     }
 
     @GetMapping("/actividad/{idActividad}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar inscripciones por actividad", description = "Solo ADMIN")
-    public ResponseEntity<List<InscripcionDTO>> listarPorActividad(@PathVariable Long idActividad) {
-        return ResponseEntity.ok(inscripcionService.listarPorActividad(idActividad));
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESOR')")
+    @Operation(summary = "Listar inscripciones por actividad", description = "ADMIN ve todas, PROFESOR solo las confirmadas de su actividad asignada")
+    public ResponseEntity<List<InscripcionDTO>> listarPorActividad(
+        @PathVariable Long idActividad,
+        Authentication authentication
+    ) {
+        String emailLogueado = authentication.getName();
+        return ResponseEntity.ok(inscripcionService.listarPorActividad(idActividad, emailLogueado));
     }
 
     @PatchMapping("/{id}/estado")

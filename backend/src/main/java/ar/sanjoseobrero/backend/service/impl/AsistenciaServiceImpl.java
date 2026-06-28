@@ -1,5 +1,6 @@
 package ar.sanjoseobrero.backend.service.impl;
 
+import ar.sanjoseobrero.backend.dto.AsignacionDTO;
 import ar.sanjoseobrero.backend.dto.AsistenciaDTO;
 import ar.sanjoseobrero.backend.dto.AsistenciaRequestDTO;
 import ar.sanjoseobrero.backend.dto.DetalleAsistenciaDTO;
@@ -7,6 +8,7 @@ import ar.sanjoseobrero.backend.entity.Actividad;
 import ar.sanjoseobrero.backend.entity.Alumno;
 import ar.sanjoseobrero.backend.entity.Asistencia;
 import ar.sanjoseobrero.backend.entity.Profesor;
+import ar.sanjoseobrero.backend.entity.Sede;
 import ar.sanjoseobrero.backend.entity.UsuarioSistema;
 import ar.sanjoseobrero.backend.entity.enums.EstadoInscripcion;
 import ar.sanjoseobrero.backend.repository.ActividadRepository;
@@ -14,6 +16,7 @@ import ar.sanjoseobrero.backend.repository.AlumnoRepository;
 import ar.sanjoseobrero.backend.repository.AsistenciaRepository;
 import ar.sanjoseobrero.backend.repository.InscripcionRepository;
 import ar.sanjoseobrero.backend.repository.ProfesorRepository;
+import ar.sanjoseobrero.backend.repository.SedeRepository;
 import ar.sanjoseobrero.backend.repository.UsuarioSistemaRepository;
 import ar.sanjoseobrero.backend.service.AsistenciaService;
 import jakarta.persistence.EntityNotFoundException;
@@ -34,6 +37,7 @@ public class AsistenciaServiceImpl implements AsistenciaService {
     private final AlumnoRepository alumnoRepository;
     private final ActividadRepository actividadRepository;
     private final ProfesorRepository profesorRepository;
+    private final SedeRepository sedeRepository;
     private final UsuarioSistemaRepository usuarioSistemaRepository;
     private final InscripcionRepository inscripcionRepository;
 
@@ -44,6 +48,9 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         Actividad actividad = actividadRepository.findById(request.getIdActividad())
             .orElseThrow(() -> new EntityNotFoundException("Actividad no encontrada: " + request.getIdActividad()));
 
+        Sede sede = sedeRepository.findById(request.getIdSede())
+            .orElseThrow(() -> new EntityNotFoundException("Sede no encontrada: " + request.getIdSede()));
+
         UsuarioSistema usuario = usuarioSistemaRepository.findByEmail(emailProfesorLogueado)
             .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + emailProfesorLogueado));
 
@@ -52,10 +59,12 @@ public class AsistenciaServiceImpl implements AsistenciaService {
         // Si es ADMIN puede no tener Profesor asociado — se registra sin profesor específico
         Profesor profesor = profesorRepository.findByUsuarioSistemaId(usuario.getId()).orElse(null);
 
-        // El profesor solo puede tomar asistencia de actividades que tiene asignadas (ADMIN no tiene esta restricción)
-        if (!esAdmin && (profesor == null || !profesorTieneActividad(profesor, actividad))) {
+        // El profesor solo puede tomar asistencia de la combinación actividad+sede
+        // que tenga en sus Asignaciones (ADMIN no tiene esta restricción)
+        if (!esAdmin && (profesor == null || !tieneAsignacion(profesor, actividad, sede))) {
             throw new AccessDeniedException(
-                "No tenés asignada la actividad '" + actividad.getNombre() + "'"
+                "No tenés asignada la actividad '" + actividad.getNombre()
+                    + "' en la sede '" + sede.getNombre() + "'"
             );
         }
 
@@ -91,6 +100,7 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                 .alumno(alumno)
                 .actividad(actividad)
                 .profesor(profesor)
+                .sede(sede)
                 .build();
 
             Asistencia guardada = asistenciaRepository.save(asistencia);
@@ -118,11 +128,35 @@ public class AsistenciaServiceImpl implements AsistenciaService {
             .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<AsignacionDTO> listarMisAsignaciones(String emailLogueado) {
+        UsuarioSistema usuario = usuarioSistemaRepository.findByEmail(emailLogueado)
+            .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + emailLogueado));
+
+        Profesor profesor = profesorRepository.findByUsuarioSistemaId(usuario.getId()).orElse(null);
+
+        // ADMIN sin Profesor asociado — no tiene asignaciones propias
+        if (profesor == null) {
+            return List.of();
+        }
+
+        return profesor.getAsignaciones().stream()
+            .map(a -> AsignacionDTO.builder()
+                .idActividad(a.getActividad().getId())
+                .nombreActividad(a.getActividad().getNombre())
+                .idSede(a.getSede().getId())
+                .nombreSede(a.getSede().getNombre())
+                .build())
+            .toList();
+    }
+
     // ── Métodos privados de apoyo ──
 
-    private boolean profesorTieneActividad(Profesor profesor, Actividad actividad) {
-        return profesor.getActividades().stream()
-            .anyMatch(a -> a.getId().equals(actividad.getId()));
+    private boolean tieneAsignacion(Profesor profesor, Actividad actividad, Sede sede) {
+        return profesor.getAsignaciones().stream()
+            .anyMatch(a -> a.getActividad().getId().equals(actividad.getId())
+                && a.getSede().getId().equals(sede.getId()));
     }
 
     private AsistenciaDTO mapearADTO(Asistencia asistencia) {
@@ -135,6 +169,8 @@ public class AsistenciaServiceImpl implements AsistenciaService {
             .nombreProfesor(asistencia.getProfesor() != null
                 ? asistencia.getProfesor().getNombre() + " " + asistencia.getProfesor().getApellido()
                 : "Administrador")
+            .idSede(asistencia.getSede().getId())
+            .nombreSede(asistencia.getSede().getNombre())
             .fecha(asistencia.getFecha())
             .presente(asistencia.getPresente())
             .build();

@@ -28,13 +28,10 @@ public class Profesor extends Persona {
     @JoinColumn(name = "id_usuario_sistema", nullable = false, unique = true)
     private UsuarioSistema usuarioSistema;
 
-    //Dueña de la relación con Actividad
-    @ManyToMany
-    @JoinTable(
-    name = "profesor_actividad",
-    joinColumns = @JoinColumn(name = "profesor_id"),
-    inverseJoinColumns = @JoinColumn(name = "actividad_id")
-    )
+    // Cada Asignacion representa profesor+actividad+sede juntos
+    // Un profesor puede dar la misma actividad en sedes distintas.
+    @OneToMany(mappedBy = "profesor", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private Set<Actividad> actividades = new HashSet<>();
-    }
+    private Set<Asignacion> asignaciones = new HashSet<>();
+
+}

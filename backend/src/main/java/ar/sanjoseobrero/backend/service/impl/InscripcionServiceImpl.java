@@ -1,5 +1,10 @@
 package ar.sanjoseobrero.backend.service.impl;
 
+import ar.sanjoseobrero.backend.entity.Profesor;
+import ar.sanjoseobrero.backend.entity.UsuarioSistema;
+import ar.sanjoseobrero.backend.repository.ProfesorRepository;
+import ar.sanjoseobrero.backend.repository.UsuarioSistemaRepository;
+import org.springframework.security.access.AccessDeniedException;
 import ar.sanjoseobrero.backend.service.InscripcionService;
 import ar.sanjoseobrero.backend.dto.DatosPastoralesRequestDTO;
 import ar.sanjoseobrero.backend.dto.DatosSaludRequestDTO;
@@ -10,8 +15,10 @@ import ar.sanjoseobrero.backend.entity.Alumno;
 import ar.sanjoseobrero.backend.entity.DatosPastorales;
 import ar.sanjoseobrero.backend.entity.DatosSalud;
 import ar.sanjoseobrero.backend.entity.Inscripcion;
+import ar.sanjoseobrero.backend.entity.Profesor;
 import ar.sanjoseobrero.backend.entity.Sede;
 import ar.sanjoseobrero.backend.entity.Tutor;
+import ar.sanjoseobrero.backend.entity.UsuarioSistema;
 import ar.sanjoseobrero.backend.entity.enums.EstadoInscripcion;
 import ar.sanjoseobrero.backend.repository.ActividadRepository;
 import ar.sanjoseobrero.backend.repository.AlumnoRepository;
@@ -37,6 +44,8 @@ public class InscripcionServiceImpl implements InscripcionService {
     private final TutorRepository tutorRepository;
     private final ActividadRepository actividadRepository;
     private final SedeRepository sedeRepository;
+    private final ProfesorRepository profesorRepository;
+    private final UsuarioSistemaRepository usuarioSistemaRepository;
 
     @Override
     @Transactional // Si algo falla a mitad de camino, se revierte todo (rollback)
@@ -207,11 +216,39 @@ public class InscripcionServiceImpl implements InscripcionService {
         return mapearADTO(actualizada);
     }
 
+    // Recibe el email del usuario logueado.
+    // ADMIN: ve TODAS las inscripciones de la actividad, sin filtrar (como antes).
+    // PROFESOR: ve SOLO las CONFIRMADAS de la sede donde él da esa actividad,
+    // validando primero que tenga una Asignacion para esa actividad.
     @Override
     @Transactional(readOnly = true)
-    public List<InscripcionDTO> listarPorActividad(Long idActividad) {
+    public List<InscripcionDTO> listarPorActividad(Long idActividad, String emailLogueado) {
+        UsuarioSistema usuario = usuarioSistemaRepository.findByEmail(emailLogueado)
+            .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + emailLogueado));
+
+        boolean esAdmin = usuario.getRol().name().equals("ADMIN");
+
+        if (esAdmin) {
+            return inscripcionRepository.findByActividadId(idActividad)
+                .stream()
+                .map(this::mapearADTO)
+                .toList();
+        }
+
+        // PROFESOR: solo ve las CONFIRMADAS de la actividad donde tiene una Asignacion
+        Profesor profesor = profesorRepository.findByUsuarioSistemaId(usuario.getId())
+            .orElseThrow(() -> new EntityNotFoundException("El usuario no tiene perfil de profesor"));
+
+        boolean tieneAsignacion = profesor.getAsignaciones().stream()
+            .anyMatch(a -> a.getActividad().getId().equals(idActividad));
+
+        if (!tieneAsignacion) {
+            throw new AccessDeniedException("No tenés asignada esta actividad");
+        }
+
         return inscripcionRepository.findByActividadId(idActividad)
             .stream()
+            .filter(i -> i.getEstado() == EstadoInscripcion.CONFIRMADO)
             .map(this::mapearADTO)
             .toList();
     }

@@ -24,6 +24,4 @@ public class ActividadRequestDTO {
 
     @NotEmpty(message = "Debe asignar al menos una sede")
     private List<Long> idsSedes;
-
-    private List<Long> idsProfesores;
 }

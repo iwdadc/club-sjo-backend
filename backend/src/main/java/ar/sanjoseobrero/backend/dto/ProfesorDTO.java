@@ -16,6 +16,6 @@ public class ProfesorDTO {
     private String nombre;
     private String apellido;
     private String email;
-    private List<String> actividades;
-    private Boolean activo;
+    private List<AsignacionDTO> asignaciones;
+    private Boolean activo; 
 }

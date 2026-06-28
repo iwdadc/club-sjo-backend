@@ -17,5 +17,5 @@ public interface InscripcionService {
 
     InscripcionDTO asignarSede(Long idInscripcion, Long idSede);
     
-    List<InscripcionDTO> listarPorActividad(Long idActividad);
+    List<InscripcionDTO> listarPorActividad(Long idActividad, String emailLogueado);
 }
