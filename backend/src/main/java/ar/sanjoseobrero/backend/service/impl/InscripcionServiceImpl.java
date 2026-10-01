@@ -197,7 +197,7 @@ public class InscripcionServiceImpl implements InscripcionService {
             throw new IllegalStateException(
                 "No hay cupos disponibles para " + actividad.getNombre()
             );
-        }       
+        }   
     }
 
     inscripcion.setEstado(nuevoEstado);
