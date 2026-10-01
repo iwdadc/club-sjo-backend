@@ -28,9 +28,9 @@ public class InscripcionController {
 
     @PostMapping
     @Operation(summary = "Nueva inscripción", description = "Endpoint público del formulario de inscripción")
-    public ResponseEntity<InscripcionDTO> crear(@Valid @RequestBody InscripcionRequestDTO request) {
-        InscripcionDTO creada = inscripcionService.crearInscripcionCompleta(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+    public ResponseEntity<List<InscripcionDTO>> crear(@Valid @RequestBody InscripcionRequestDTO request) {
+        List<InscripcionDTO> creadas = inscripcionService.crearInscripcionCompleta(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creadas);
     }
 
     @GetMapping
@@ -64,7 +64,7 @@ public class InscripcionController {
 
     @PatchMapping("/{id}/sede")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Asignar sede definitiva", description = "Solo ADMIN — asigna la sede entre las sugeridas")
+    @Operation(summary = "Asignar sede definitiva", description = "Solo ADMIN - asigna la sede entre las sugeridas")
     public ResponseEntity<InscripcionDTO> asignarSede(
         @PathVariable Long id,
         @RequestBody Map<String, Long> body

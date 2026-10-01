@@ -18,5 +18,6 @@ public class ActividadDTO {
     private Integer inscriptos; // se calcula, no se guarda
     private Boolean activa;
     private List<String> sedes;
+    private List<Long> idsSedes;
     private List<String> profesores;
 }

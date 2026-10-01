@@ -9,7 +9,10 @@ import java.util.List;
 public interface AlumnoService {
     List<AlumnoDTO> listarTodos();
 
+    List<AlumnoDTO> listarConfirmados();
+
     AlumnoDTO obtenerPorId(Long id);
 
     AlumnoDTO actualizarDatos(Long id, AlumnoDTO datosActualizados);
+    
 }

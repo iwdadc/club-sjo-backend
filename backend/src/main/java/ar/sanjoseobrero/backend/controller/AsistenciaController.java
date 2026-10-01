@@ -3,6 +3,7 @@ package ar.sanjoseobrero.backend.controller;
 import ar.sanjoseobrero.backend.dto.AsignacionDTO;
 import ar.sanjoseobrero.backend.dto.AsistenciaDTO;
 import ar.sanjoseobrero.backend.dto.AsistenciaRequestDTO;
+import ar.sanjoseobrero.backend.dto.HistorialAsistenciaDTO;
 import ar.sanjoseobrero.backend.service.AsistenciaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -79,5 +80,12 @@ public class AsistenciaController {
     public ResponseEntity<List<AsignacionDTO>> listarMisAsignaciones(Authentication authentication) {
         String emailLogueado = authentication.getName();
         return ResponseEntity.ok(asistenciaService.listarMisAsignaciones(emailLogueado));
+    }
+
+    @GetMapping("/historial")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Historial general de asistencias", description = "Solo ADMIN")
+    public ResponseEntity<List<HistorialAsistenciaDTO>> listarHistorial() {
+        return ResponseEntity.ok(asistenciaService.listarHistorialAdmin());
     }
 }

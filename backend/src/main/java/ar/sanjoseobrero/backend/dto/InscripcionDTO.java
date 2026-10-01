@@ -13,6 +13,7 @@ import java.util.List;
 @Builder
 public class InscripcionDTO {
     private Long id;
+    private Long idAlumno;
     private String nombreAlumno;
     private String dniAlumno;
     private List<String> actividades;

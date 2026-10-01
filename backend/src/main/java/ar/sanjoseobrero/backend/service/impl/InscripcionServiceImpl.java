@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
+import java.util.ArrayList;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -49,8 +50,11 @@ public class InscripcionServiceImpl implements InscripcionService {
 
     @Override
     @Transactional // Si algo falla a mitad de camino, se revierte todo (rollback)
-    public InscripcionDTO crearInscripcionCompleta(InscripcionRequestDTO request) {
-
+    public List<InscripcionDTO> crearInscripcionCompleta(InscripcionRequestDTO request) {
+    System.out.println("=== INICIANDO INSCRIPCION ===");
+    System.out.println("Actividades: " + request.getIdsActividades());
+    System.out.println("Sedes: " + request.getIdsSedes());
+    System.out.println("Alumno: " + request.getAlumno().getNombre());
         // 1. Crear el Tutor
         Tutor tutor = Tutor.builder()
             .nombre(request.getAlumno().getTutor().getNombre())
@@ -77,6 +81,8 @@ public class InscripcionServiceImpl implements InscripcionService {
             .ocupacion(request.getAlumno().getOcupacion())
             .convivencia(request.getAlumno().getConvivencia())
             .tutor(tutor)
+            .fotoDniFrenteUrl(request.getAlumno().getFotoDniFrenteUrl())
+            .fotoDniDorsoUrl(request.getAlumno().getFotoDniDorsoUrl())
             .build();
         alumno = alumnoRepository.save(alumno);
 
@@ -144,29 +150,27 @@ public class InscripcionServiceImpl implements InscripcionService {
         Set<Sede> sedesSugeridas = buscarSedes(request.getIdsSedes());
 
         // 6. Crear una Inscripcion por cada actividad elegida
-        Inscripcion ultimaInscripcion = null;
-        for (Actividad actividad : actividades) {
-    Inscripcion inscripcion = Inscripcion.builder()
-        .alumno(alumno)
-        .actividad(actividad)
-        .sede(null) // se asigna después, cuando el admin confirma
-        .sedesSugeridas(sedesSugeridas)
-        .estado(EstadoInscripcion.PENDIENTE)
-        .anioParticipacion(request.getAnioParticipacion())
-        .whatsappContacto(request.getWhatsappContacto())
-        .retiroMenor(request.getRetiroMenor())
-        .quienBusca(request.getQuienBusca())
-        .autorizaActividad(request.isAutorizaActividad())
-        .firmaActividad(request.getFirmaActividad())
-        .autorizaImagen(request.isAutorizaImagen())
-        .firmaImagen(request.getFirmaImagen())
-        .build();
-    ultimaInscripcion = inscripcionRepository.save(inscripcion);
-        }
-
-        return mapearADTO(ultimaInscripcion);
+        List<InscripcionDTO> inscripcionesCreadas = new ArrayList<>();
+    for (Actividad actividad : actividades) {
+        Inscripcion inscripcion = Inscripcion.builder()
+            .alumno(alumno)
+            .actividad(actividad)
+            .sede(null)
+            .sedesSugeridas(sedesSugeridas)
+            .estado(EstadoInscripcion.PENDIENTE)
+            .anioParticipacion(request.getAnioParticipacion())
+            .whatsappContacto(request.getWhatsappContacto())
+            .retiroMenor(request.getRetiroMenor())
+            .quienBusca(request.getQuienBusca())
+            .autorizaActividad(request.isAutorizaActividad())
+            .firmaActividad(request.getFirmaActividad())
+            .autorizaImagen(request.isAutorizaImagen())
+            .firmaImagen(request.getFirmaImagen())
+            .build();
+        inscripcionesCreadas.add(mapearADTO(inscripcionRepository.save(inscripcion)));
     }
-
+    return inscripcionesCreadas;
+    }
     @Override
     @Transactional(readOnly = true)
     public List<InscripcionDTO> listarTodas() {
@@ -217,38 +221,38 @@ public class InscripcionServiceImpl implements InscripcionService {
     }
 
     // Recibe el email del usuario logueado.
-    // ADMIN: ve TODAS las inscripciones de la actividad, sin filtrar (como antes).
-    // PROFESOR: ve SOLO las CONFIRMADAS de la sede donde él da esa actividad,
-    // validando primero que tenga una Asignacion para esa actividad.
+    // - ADMIN: ve TODAS las inscripciones de la actividad, sin filtrar (como antes).
+    // - PROFESOR: ve SOLO las CONFIRMADAS de la sede donde él da esa actividad, validando primero que tenga una Asignacion para esa actividad.
     @Override
     @Transactional(readOnly = true)
     public List<InscripcionDTO> listarPorActividad(Long idActividad, String emailLogueado) {
         UsuarioSistema usuario = usuarioSistemaRepository.findByEmail(emailLogueado)
             .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado: " + emailLogueado));
-
+ 
         boolean esAdmin = usuario.getRol().name().equals("ADMIN");
-
+ 
         if (esAdmin) {
             return inscripcionRepository.findByActividadId(idActividad)
                 .stream()
                 .map(this::mapearADTO)
                 .toList();
         }
-
-        // PROFESOR: solo ve las CONFIRMADAS de la actividad donde tiene una Asignacion
+ 
+        // Es PROFESOR — necesita su propia Asignacion para esa actividad
         Profesor profesor = profesorRepository.findByUsuarioSistemaId(usuario.getId())
-            .orElseThrow(() -> new EntityNotFoundException("El usuario no tiene perfil de profesor"));
-
-        boolean tieneAsignacion = profesor.getAsignaciones().stream()
-            .anyMatch(a -> a.getActividad().getId().equals(idActividad));
-
-        if (!tieneAsignacion) {
-            throw new AccessDeniedException("No tenés asignada esta actividad");
-        }
-
-        return inscripcionRepository.findByActividadId(idActividad)
+            .orElseThrow(() -> new AccessDeniedException("No tenés un perfil de profesor asociado"));
+ 
+        Sede sedeDelProfesor = profesor.getAsignaciones().stream()
+            .filter(a -> a.getActividad().getId().equals(idActividad))
+            .map(a -> a.getSede())
+            .findFirst()
+            .orElseThrow(() -> new AccessDeniedException(
+                "No tenés asignada la actividad con id " + idActividad
+            ));
+ 
+        return inscripcionRepository
+            .findByActividad_IdAndSede_IdAndEstado(idActividad, sedeDelProfesor.getId(), EstadoInscripcion.CONFIRMADO)
             .stream()
-            .filter(i -> i.getEstado() == EstadoInscripcion.CONFIRMADO)
             .map(this::mapearADTO)
             .toList();
     }
@@ -273,6 +277,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 
         return InscripcionDTO.builder()
             .id(inscripcion.getId())
+            .idAlumno(alumno.getId())
             .nombreAlumno(alumno.getNombre() + " " + alumno.getApellido())
             .dniAlumno(alumno.getDni())
             .actividades(List.of(inscripcion.getActividad().getNombre()))

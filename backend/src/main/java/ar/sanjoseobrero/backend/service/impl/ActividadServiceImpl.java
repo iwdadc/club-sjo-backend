@@ -4,8 +4,10 @@ import java.util.HashSet;
 
 import ar.sanjoseobrero.backend.dto.ActividadDTO;
 import ar.sanjoseobrero.backend.dto.ActividadRequestDTO;
+import ar.sanjoseobrero.backend.dto.HistorialAsistenciaDTO;
 import ar.sanjoseobrero.backend.entity.Actividad;
 import ar.sanjoseobrero.backend.entity.Asignacion;
+import ar.sanjoseobrero.backend.entity.Asistencia;
 import ar.sanjoseobrero.backend.entity.Sede;
 import ar.sanjoseobrero.backend.entity.enums.EstadoInscripcion;
 import ar.sanjoseobrero.backend.repository.ActividadRepository;
@@ -140,6 +142,7 @@ public class ActividadServiceImpl implements ActividadService {
             .inscriptos(inscriptos)
             .activa(actividad.getActiva())
             .sedes(actividad.getSedes().stream().map(Sede::getNombre).toList())
+            .idsSedes(actividad.getSedes().stream().map(Sede::getId).toList())
             .profesores(nombresProfesores)
             .build();
     }

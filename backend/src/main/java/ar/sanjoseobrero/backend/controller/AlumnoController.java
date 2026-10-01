@@ -36,4 +36,11 @@ public class AlumnoController {
         return ResponseEntity.ok(alumnoService.actualizarDatos(id, datos));
     }
 
+    @GetMapping("/confirmados")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Listar alumnos con inscripción confirmada", description = "Solo ADMIN")
+    public ResponseEntity<List<AlumnoDTO>> listarConfirmados() {
+        return ResponseEntity.ok(alumnoService.listarConfirmados());
+    }
+
 }

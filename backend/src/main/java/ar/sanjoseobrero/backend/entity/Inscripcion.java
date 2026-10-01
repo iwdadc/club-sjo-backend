@@ -53,7 +53,7 @@ public class Inscripcion {
     @Column(name = "quien_busca")
     private String quienBusca;
 
-    // ── Autorizaciones ──
+    // Autorizaciones
     @Builder.Default
     private Boolean autorizaActividad = false;
 

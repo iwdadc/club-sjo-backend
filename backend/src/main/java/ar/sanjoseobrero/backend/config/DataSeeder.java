@@ -40,7 +40,7 @@ public class DataSeeder implements CommandLineRunner {
             .build();
 
         usuarioSistemaRepository.save(admin);
-        System.out.println("✅ Usuario ADMIN creado: admin@sanjoseobrero.com / admin123");
+        System.out.println(" Usuario ADMIN creado: admin@sanjoseobrero.com / admin123");
     }
 
     private void crearSedesSiNoExisten() {
@@ -61,6 +61,6 @@ public class DataSeeder implements CommandLineRunner {
             .direccion("Calle Antofagasta, B° Las Achiras")
             .build());
 
-        System.out.println("✅ Sedes iniciales creadas");
+        System.out.println(" Sedes iniciales creadas");
     }
 }

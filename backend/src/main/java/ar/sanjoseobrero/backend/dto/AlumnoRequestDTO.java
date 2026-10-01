@@ -47,4 +47,7 @@ public class AlumnoRequestDTO {
     @Valid
     @NotNull(message = "Los datos del tutor son obligatorios")
     private TutorRequestDTO tutor;
+
+    private String fotoDniFrenteUrl;
+    private String fotoDniDorsoUrl;
 }

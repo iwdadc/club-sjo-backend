@@ -7,3 +7,4 @@ public enum RazonSacramento {
     NO_SABE,
     YA_RECIBIO
 }
+    

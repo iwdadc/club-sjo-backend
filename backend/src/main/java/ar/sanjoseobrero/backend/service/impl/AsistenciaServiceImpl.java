@@ -1,9 +1,11 @@
 package ar.sanjoseobrero.backend.service.impl;
 
+import ar.sanjoseobrero.backend.dto.AlumnoDTO;
 import ar.sanjoseobrero.backend.dto.AsignacionDTO;
 import ar.sanjoseobrero.backend.dto.AsistenciaDTO;
 import ar.sanjoseobrero.backend.dto.AsistenciaRequestDTO;
 import ar.sanjoseobrero.backend.dto.DetalleAsistenciaDTO;
+import ar.sanjoseobrero.backend.dto.HistorialAsistenciaDTO;
 import ar.sanjoseobrero.backend.entity.Actividad;
 import ar.sanjoseobrero.backend.entity.Alumno;
 import ar.sanjoseobrero.backend.entity.Asistencia;
@@ -150,8 +152,46 @@ public class AsistenciaServiceImpl implements AsistenciaService {
                 .build())
             .toList();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public List<HistorialAsistenciaDTO> listarHistorialAdmin() {
+        // Agrupa todas las asistencias por actividad+fecha+sede+profesor
+        return asistenciaRepository.findAll().stream()
+            .collect(java.util.stream.Collectors.groupingBy(
+                a -> a.getActividad().getId() + "-" + a.getFecha() + "-" + a.getSede().getId()
+            ))
+            .values().stream()
+            .map(grupo -> {
+                Asistencia primera = grupo.get(0);
+                int presentes = (int) grupo.stream().filter(a -> Boolean.TRUE.equals(a.getPresente())).count();
+                int ausentes  = grupo.size() - presentes;
 
-    // ── Métodos privados de apoyo ──
+                List<HistorialAsistenciaDTO.DetalleAlumnoDTO> detalle = grupo.stream()
+                    .map(a -> HistorialAsistenciaDTO.DetalleAlumnoDTO.builder()
+                        .nombre(a.getAlumno().getNombre() + " " + a.getAlumno().getApellido())
+                        .presente(a.getPresente())
+                        .build())
+                    .toList();
+
+                return HistorialAsistenciaDTO.builder()
+                    .id(primera.getId())
+                    .nombreActividad(primera.getActividad().getNombre())
+                    .nombreProfesor(primera.getProfesor() != null
+                        ? primera.getProfesor().getNombre() + " " + primera.getProfesor().getApellido()
+                        : "Administrador")
+                    .nombreSede(primera.getSede().getNombre())
+                    .fecha(primera.getFecha())
+                    .presentes(presentes)
+                    .ausentes(ausentes)
+                    .total(grupo.size())
+                    .detalle(detalle)
+                    .build();
+            })
+            .sorted(java.util.Comparator.comparing(HistorialAsistenciaDTO::getFecha).reversed())
+            .toList();
+    }
+
+    // Métodos privados de apoyo 
 
     private boolean tieneAsignacion(Profesor profesor, Actividad actividad, Sede sede) {
         return profesor.getAsignaciones().stream()

@@ -81,9 +81,10 @@ public class ProfesorServiceImpl implements ProfesorService {
         profesor.setApellido(request.getApellido());
         profesor.setDni(request.getDni());
 
-        // Reemplaza TODAS las asignaciones — gracias a orphanRemoval en la entity,
+        // Reemplaza TODAS las asignaciones - gracias a orphanRemoval en la entity,
         // las que ya no estén en el nuevo Set se borran solas de la base.
         profesor.getAsignaciones().clear();
+        profesorRepository.saveAndFlush(profesor); // flush fuerza el DELETE inmediato
         profesor.getAsignaciones().addAll(construirAsignaciones(profesor, request.getAsignaciones()));
 
         UsuarioSistema usuario = profesor.getUsuarioSistema();
@@ -108,7 +109,7 @@ public class ProfesorServiceImpl implements ProfesorService {
         usuarioSistemaRepository.save(profesor.getUsuarioSistema());
     }
 
-    // ── Métodos privados de apoyo ──
+    // Métodos privados de apoyo
 
     // Construye el Set<Asignacion> a partir del request, validando que cada
     // sede elegida sea efectivamente una de las sedes donde se dicta esa actividad.
@@ -155,6 +156,7 @@ public class ProfesorServiceImpl implements ProfesorService {
             .id(profesor.getId())
             .nombre(profesor.getNombre())
             .apellido(profesor.getApellido())
+            .dni(profesor.getDni())
             .email(profesor.getUsuarioSistema().getEmail())
             .asignaciones(asignaciones)
             .activo(profesor.getUsuarioSistema().getActivo())
