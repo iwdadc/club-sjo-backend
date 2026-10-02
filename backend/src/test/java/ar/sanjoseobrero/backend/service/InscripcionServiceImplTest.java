@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
  * Prueba UNITARIA de las reglas de negocio de InscripcionServiceImpl:
  *  - cupo maximo al confirmar
  *  - autorizacion por rol en listarPorActividad
- * Todos los repositories son mocks.
+ * Todos los repositories son mocks
  */
 @ExtendWith(MockitoExtension.class)
 class InscripcionServiceImplTest {

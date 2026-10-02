@@ -24,12 +24,10 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Prueba de INTEGRACION con BASE REAL: Testcontainers levanta un MySQL 8 efimero en Docker.
+ * Prueba de integracion con base real: Testcontainers levanta un MySQL 8 efimero en Docker.
  * Valida que las queries derivadas de Spring Data (countBy..., findBy..., existsBy...)
  * realmente filtran bien contra una base MySQL, no contra un mock.
  *
- * Requiere Docker corriendo. El nombre termina en IT (integration test), por eso
- * surefire NO lo toma con un "mvn test" pelado: se ejecuta con -Dtest=InscripcionRepositoryIT.
  */
 @Testcontainers
 @DataJpaTest(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
