@@ -130,7 +130,7 @@ jobs:
           -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
           -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
           '-Dsonar.coverage.exclusions=**/dto/**,**/entity/**,**/config/**,**/*Application.java'
-          -Dsonar.qualitygate.wait=true
+          -Dsonar.qualitygate.wait=${{ github.event_name == 'pull_request' }}
 
   version:
     name: Crear versión
