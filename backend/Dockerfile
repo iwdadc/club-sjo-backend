@@ -15,4 +15,4 @@ COPY --from=build /app/target/*.jar app.jar
 USER app
 EXPOSE 8080
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75"
-ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
