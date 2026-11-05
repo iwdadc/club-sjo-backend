@@ -1,3 +1,32 @@
 spring:
   application:
-    name: backend
+    name: club-sjo-backend
+
+  datasource:
+    #La direccion de la base ya no esta foija en localhost. Se define en Render
+    url: ${DB_URL:jdbc:mysql://localhost:3306/club_sjo?useSSL=false&serverTimezone=America/Argentina/Buenos_Aires&allowPublicKeyRetrieval=true}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: ${DDL_AUTO:update}
+    #Ya no imprime las consultas SQL en los logs por defecto
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: ${PORT:8080}
+
+jwt:
+  secret: ${JWT_SECRET:club-sjo-dev-iwdadc-secret-lollypop-0123456789abcdef}
+  expiration: 28800000  # 8 horas en milisegundos
+
+app:
+  cors:
+    # Lista separada por comas. En produccion: URL del frontend deployado
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
