@@ -123,7 +123,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: >
-          mvn -B sonar:sonar
+          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:5.8.0.7211:sonar ...
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
           -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
