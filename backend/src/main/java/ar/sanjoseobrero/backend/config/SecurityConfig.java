@@ -37,7 +37,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf.disable()) // NOSONAR: API stateless con JWT en el header Authorization, sin cookies ni sesiones
             //.cors(cors -> cors.configurationSource(corsConfigurationSource())) Antes se indicaba manualmeente que configarion cors usar. ahora utiliza la configuracion de cors definida en el contexto de Spring 
             .cors(Customizer.withDefaults())
             .sessionManagement(session ->
