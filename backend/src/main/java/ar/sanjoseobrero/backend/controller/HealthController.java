@@ -20,7 +20,7 @@ public class HealthController {
     public Map<String, String> health() {
         return Map.of(
             "status", "UP",
-            "message", "Club San Jose Obrero API",
+            "message", "Club San Jose Obrero API v2",
             "commit", commit
         );
     }
