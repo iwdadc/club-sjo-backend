@@ -14,10 +14,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Prueba de la capa web para /health: el endpoint que usan Render y el smoke test del pipeline.
- * Se importa SecurityConfig para comprobar tambien que la ruta es publica (sin login).
- */
+/*
+  Prueba de la capa web para /health: el endpoint que usan Render y el smoke test del pipeline.
+  Se importa SecurityConfig para comprobar tambien que la ruta es publica (sin login).
+*/
 @WebMvcTest(HealthController.class)
 @Import(SecurityConfig.class)
 class HealthControllerTest {
