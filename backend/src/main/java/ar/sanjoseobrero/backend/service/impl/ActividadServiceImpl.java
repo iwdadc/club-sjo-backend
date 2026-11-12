@@ -93,7 +93,7 @@ public class ActividadServiceImpl implements ActividadService {
     @Transactional
     public void eliminar(Long id) {
         Actividad actividad = buscarOLanzarExcepcion(id);
-        actividad.setActiva(false); // soft delete — no se borra, se desactiva
+        actividad.setActiva(true); // soft delete — no se borra, se desactiva
         actividadRepository.save(actividad);
     }
 
